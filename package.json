@@ -4,7 +4,7 @@
   "description": "Utility for mapping JSON objects to TS models and back",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc src/index.ts -d -m system --outFile dist/index.js",
+    "build": "tsc src/index.ts -d -m commonjs --outDir dist/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Dmitry Shashkov",
