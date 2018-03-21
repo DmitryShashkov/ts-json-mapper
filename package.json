@@ -4,6 +4,7 @@
   "description": "Utility for mapping JSON objects to TS models and back",
   "main": "index.ts",
   "scripts": {
+    "build": "tsc --declaration index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Dmitry Shashkov",
