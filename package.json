@@ -1,6 +1,6 @@
 {
   "name": "ts-json-mapper",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Utility for mapping JSON objects to TS models and back",
   "main": "index.ts",
   "scripts": {
@@ -13,5 +13,9 @@
     "type": "git",
     "url": "https://github.com/DmitryShashkov/ts-json-mapper.git"
   },
-  "keywords": ["typescript", "json", "mapper"]
+  "keywords": [
+    "typescript",
+    "json",
+    "mapper"
+  ]
 }
