@@ -2,9 +2,9 @@
   "name": "ts-json-mapper",
   "version": "0.0.2",
   "description": "Utility for mapping JSON objects to TS models and back",
-  "main": "index.ts",
+  "main": "dist/index.js",
   "scripts": {
-    "build": "tsc --declaration index.ts",
+    "build": "tsc src/index.ts -d -m system --outFile dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Dmitry Shashkov",
