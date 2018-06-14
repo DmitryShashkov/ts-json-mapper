@@ -73,16 +73,17 @@ var Constants = /** @class */ (function () {
  * 'BaseModel' constructor will use those correspondences for mapping
  * @param {string} jsonField - name of the field in JSON, that should be mapped to decorated property
  * @param type - class of decorated property (in case it belongs to composite type)
+ * @param {boolean} required - to force parse value, or will throw an exception
  * @returns {Function}
  */
-function ModelProperty(jsonField, type) {
+function ModelProperty(jsonField, type, required) {
     return function (target, propertyKey, index) {
         // getting name of meta-field
         var key = Constants.CORRESPONDENCES_META_KEY;
         // forming the object that describes correspondence
         // between JSON and TS model fields
         var newCorrespondence = {
-            modelField: propertyKey, jsonField: jsonField, type: type
+            modelField: propertyKey, jsonField: jsonField, type: type, required: required
         };
         // forming array of correspondences
         Helpers.isArray(target[key])
@@ -111,20 +112,22 @@ var BaseModel = /** @class */ (function () {
             var correspondence = correspondences_1[_i];
             // if 'jsonField' was not specified, property name stays the same
             var dataField = correspondence.jsonField || correspondence.modelField;
-            this[correspondence.modelField] = this.deserializeValue(options[dataField], correspondence.type);
+            this[correspondence.modelField] = this.deserializeValue(options[dataField], correspondence.type, correspondence.key, correspondence.jsonField, correspondence.required);
         }
     }
     /**
      * Deserialize value depending on its type
      * @param value - value to deserialize
      * @param targetClass - class to cast value to (if needed)
+     * @param {string} jsonField - name of the field in JSON
+     * @param {boolean} required - force deserialize value
      * @returns
      */
-    BaseModel.prototype.deserializeValue = function (value, targetClass) {
+    BaseModel.prototype.deserializeValue = function (value, targetClass, jsonField, required) {
         var _this = this;
         // if value is an array, deserialize each of its items
         if (Helpers.isArray(value)) {
-            return value.map(function (item) { return _this.deserializeValue(item, targetClass); });
+            return value.map(function (item) { return _this.deserializeValue(item, targetClass, jsonField, required); });
         }
         // if value is JS object, pass it to constructor of corresponding class
         if (Helpers.isObject(value)) {
@@ -135,6 +138,10 @@ var BaseModel = /** @class */ (function () {
         // if value is a correct date string, cast it to Date
         if (Helpers.isDateString(value)) {
             return new Date(value);
+        }
+        // if value is required and it is null, throw exception
+        if (required && !value){
+            throw new Error("Value for json field '" + jsonField + "' not found")
         }
         // primitives do not require processing
         return value;
