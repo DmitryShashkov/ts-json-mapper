@@ -1,6 +1,6 @@
 {
   "name": "ts-json-mapper",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Utility for mapping JSON objects to TS models and back",
   "main": "index.js",
   "scripts": {
