@@ -76,6 +76,9 @@ interface Correspondence {
 
     // type of the field in TS model
     readonly type: any;
+
+    // type of the field in TS model 
+    readonly required: boolean;
 }
 
 /**
@@ -86,9 +89,10 @@ interface Correspondence {
  * 'BaseModel' constructor will use those correspondences for mapping
  * @param {string} jsonField - name of the field in JSON, that should be mapped to decorated property
  * @param type - class of decorated property (in case it belongs to composite type)
+ * @param {boolean} required - to force parse value, or will throw an exception
  * @returns {Function}
  */
-export function ModelProperty (jsonField?: string, type?: any) : Function {
+export function ModelProperty (jsonField?: string, type?: any, required?: boolean) : Function {
     return function (target: any, propertyKey : string, index : number) {
         // getting name of meta-field
         let key = Constants.CORRESPONDENCES_META_KEY;
@@ -96,7 +100,7 @@ export function ModelProperty (jsonField?: string, type?: any) : Function {
         // forming the object that describes correspondence
         // between JSON and TS model fields
         let newCorrespondence: Correspondence = {
-            modelField: propertyKey, jsonField, type
+            modelField: propertyKey, jsonField, type, required
         };
 
         // forming array of correspondences
@@ -117,12 +121,14 @@ export class BaseModel {
      * Deserialize value depending on its type
      * @param value - value to deserialize
      * @param targetClass - class to cast value to (if needed)
+     * @param {string} jsonField - name of the field in JSON
+     * @param {boolean} required - force deserialize value
      * @returns
      */
-    private deserializeValue (value: any, targetClass: any) {
+    private deserializeValue (value: any, targetClass: any, jsonField: string, required: boolean = false) {
         // if value is an array, deserialize each of its items
         if (Helpers.isArray(value)) {
-            return value.map((item) => this.deserializeValue(item, targetClass));
+            return value.map((item) => this.deserializeValue(item, targetClass, jsonField, required));
         }
 
         // if value is JS object, pass it to constructor of corresponding class
@@ -135,6 +141,11 @@ export class BaseModel {
         // if value is a correct date string, cast it to Date
         if (Helpers.isDateString(value)) {
             return new Date(value);
+        }
+
+        // if value is required
+        if (required && !value){
+            throw new Error("Value for json field '" + jsonField + "' not found")
         }
 
         // primitives do not require processing
@@ -180,7 +191,7 @@ export class BaseModel {
         for (let correspondence of correspondences) {
             // if 'jsonField' was not specified, property name stays the same
             let dataField = correspondence.jsonField || correspondence.modelField;
-            this[correspondence.modelField] = this.deserializeValue(options[dataField], correspondence.type);
+            this[correspondence.modelField] = this.deserializeValue(options[dataField], correspondence.type, correspondence.jsonField, correspondence.required);
         }
     }
 
