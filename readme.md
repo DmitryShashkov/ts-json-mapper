@@ -50,7 +50,8 @@ npm install --save ts-json-mapper
 
     - `ModelProperty` may be used without parameters when field names in JSON and TS model coincide and data is of primary type (`boolean`, `number` or `string`);
     - `ModelProperty` may be used with a single string parameter which specifies field name in JSON (data from field with that name will be mapped to decorated property);
-    - `ModelProperty` may be used with two parameters: first being name of field in JSON, and second - class, which JSON data will be cast to; for arrays, **do not** use `Class[]`, use just `Class` instead.
+    - `ModelProperty` may be used with two parameters: first being name of field in JSON, and second - class, which JSON data will be cast to; for arrays, **do not** use `Class[]`, use just `Class` instead;
+    - `ModelProperty` may be used with three parameters: first two are the same as in previous entry, and the third one is `required`: if `required` is set to `true`, and JSON doesn't contain any value in specified field, an error will be thrown.
 
 3. Pass JSON retrieved from back-end to your model's constructor
 
