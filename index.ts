@@ -14,6 +14,12 @@ class Helpers {
     private static readonly DATE_STRING_REGEXP = /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d)/;
 
     /**
+     * Regular expression used to check the json field is a nested field.
+     * @type {RegExp}
+     */
+    private static readonly NESTED_JSON_KEY_REGEXP = /[a-z0-9-_]+/g;
+
+    /**
      * Check if passed value is an array
      * @param value
      * @returns {boolean}
@@ -48,6 +54,15 @@ class Helpers {
      */
     public static isDateString (value: string) : boolean {
         return Helpers.DATE_STRING_REGEXP.test(value);
+    }
+
+    /**
+     * Check if passed value is a nested json field
+     * @param {string} value
+     * @returns {RegExpMatchArray | null}
+     */
+    public static getNestedFields (value: string): RegExpMatchArray | null{
+        return value.match(Helpers.NESTED_JSON_KEY_REGEXP)
     }
 }
 
@@ -92,7 +107,7 @@ interface Correspondence {
  * @param {boolean} required - to force parse value, or will throw an exception
  * @returns {Function}
  */
-export function ModelProperty (jsonField?: string, type?: any, required?: boolean) : Function {
+export function ModelProperty (jsonField: string = "", type?: any, required: boolean = false) : Function {
     return function (target: any, propertyKey : string, index : number) {
         // getting name of meta-field
         let key = Constants.CORRESPONDENCES_META_KEY;
@@ -117,6 +132,35 @@ export function ModelProperty (jsonField?: string, type?: any, required?: boolea
  * may be renamed or cast to specified types during this process
  */
 export class BaseModel {
+    /**
+     * Find value based on json field key
+     * @param options
+     * @param {string} jsonField - name of the field in JSON
+     * @returns {object}
+     */
+    private findValue (options: any, jsonField: string) {
+
+        // init an empty value
+        let value: any = undefined
+
+        // get nested fields from jsonField
+        const nestedFields = Helpers.getNestedFields(jsonField)
+
+        // check if jsonField has nested fields
+        if(nestedFields){
+
+        // loop through nested fields 
+        nestedFields.forEach(field => {
+            value = value ? value[field] : options[field]
+        });
+        
+        }else{
+        value = options[jsonField]
+        }
+        
+        return value
+    }
+
     /**
      * Deserialize value depending on its type
      * @param value - value to deserialize
@@ -191,7 +235,7 @@ export class BaseModel {
         for (let correspondence of correspondences) {
             // if 'jsonField' was not specified, property name stays the same
             let dataField = correspondence.jsonField || correspondence.modelField;
-            this[correspondence.modelField] = this.deserializeValue(options[dataField], correspondence.type, correspondence.jsonField, correspondence.required);
+            this[correspondence.modelField] = this.deserializeValue(this.findValue(options, dataField), correspondence.type, correspondence.jsonField, correspondence.required);
         }
     }
 
