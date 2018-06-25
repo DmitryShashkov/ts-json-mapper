@@ -17,7 +17,7 @@ class Helpers {
      * Regular expression used to check the json field is a nested field.
      * @type {RegExp}
      */
-    private static readonly NESTED_JSON_KEY_REGEXP = /[a-z0-9-_]+/g;
+    private static readonly NESTED_JSON_KEY_REGEXP = /[A-Za-z0-9_]+/g;
 
     /**
      * Check if passed value is an array

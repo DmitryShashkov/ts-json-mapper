@@ -62,7 +62,7 @@ var Helpers = /** @class */ (function () {
      * Regular expression used to check the json field is a nested field.
      * @type {RegExp}
      */
-    Helpers.NESTED_JSON_KEY_REGEXP = /[a-z0-9-_]+/g;
+    Helpers.NESTED_JSON_KEY_REGEXP = /[A-Za-z0-9_]+/g;
     return Helpers;
 }());
 /**
