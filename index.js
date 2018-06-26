@@ -40,6 +40,14 @@ var Helpers = /** @class */ (function () {
         return Helpers.DATE_STRING_REGEXP.test(value);
     };
     /**
+     * Check if passed value is a nested json field
+     * @param {string} value
+     * @returns {RegExpMatchArray | null}
+     */
+    Helpers.getNestedFields = function (value) {
+        return value.match(Helpers.NESTED_JSON_KEY_REGEXP)
+    }
+    /**
      * Regular expression used to check the string is a correct date string according to ISO 8601.
      * Taken from https://stackoverflow.com/a/3143231/6794376
      * We know, that using libraries like moment would be more reliable approach
@@ -49,6 +57,12 @@ var Helpers = /** @class */ (function () {
      * @type {RegExp}
      */
     Helpers.DATE_STRING_REGEXP = /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d)/;
+
+    /**
+     * Regular expression used to check the json field is a nested field.
+     * @type {RegExp}
+     */
+    Helpers.NESTED_JSON_KEY_REGEXP = /[A-Za-z0-9_]+/g;
     return Helpers;
 }());
 /**
@@ -76,7 +90,7 @@ var Constants = /** @class */ (function () {
  * @param {boolean} required - to force parse value, or will throw an exception
  * @returns {Function}
  */
-function ModelProperty(jsonField, type, required) {
+function ModelProperty(jsonField = "", type, required = true) {
     return function (target, propertyKey, index) {
         // getting name of meta-field
         var key = Constants.CORRESPONDENCES_META_KEY;
@@ -112,8 +126,30 @@ var BaseModel = /** @class */ (function () {
             var correspondence = correspondences_1[_i];
             // if 'jsonField' was not specified, property name stays the same
             var dataField = correspondence.jsonField || correspondence.modelField;
-            this[correspondence.modelField] = this.deserializeValue(options[dataField], correspondence.type, correspondence.key, correspondence.jsonField, correspondence.required);
+            this[correspondence.modelField] = this.deserializeValue(this.findValue(options, dataField), correspondence.type, correspondence.key, correspondence.jsonField, correspondence.required);
         }
+    }
+    /**
+     * Find value based on json field key
+     * @param options
+     * @param {string} jsonField - name of the field in JSON
+     * @returns {object}
+     */
+    BaseModel.prototype.findValue = function (options, jsonField) {
+        // init an empty value
+        var value = undefined
+        // get nested fields from jsonField
+        var nestedFields = Helpers.getNestedFields(jsonField)
+        // check if jsonField has nested fields
+        if(nestedFields){
+            // loop through nested fields 
+            nestedFields.forEach(field => {
+                value = value ? value[field] : options[field]
+            });
+        }else{
+            value = options[jsonField]
+        }
+        return value
     }
     /**
      * Deserialize value depending on its type

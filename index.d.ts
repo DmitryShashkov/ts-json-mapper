@@ -18,6 +18,13 @@ export declare function ModelProperty(jsonField?: string, type?: any, required?:
  */
 export declare class BaseModel {
     /**
+     * Find value based on json field key
+     * @param options
+     * @param {string} jsonField - name of the field in JSON
+     * @returns {object}
+     */
+    private findValue (options: any, jsonField: string)
+    /**
      * Deserialize value depending on its type
      * @param value - value to deserialize
      * @param targetClass - class to cast value to (if needed)
