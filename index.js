@@ -112,7 +112,7 @@ var BaseModel = /** @class */ (function () {
             var correspondence = correspondences_1[_i];
             // if 'jsonField' was not specified, property name stays the same
             var dataField = correspondence.jsonField || correspondence.modelField;
-            this[correspondence.modelField] = this.deserializeValue(options[dataField], correspondence.type, correspondence.key, correspondence.jsonField, correspondence.required);
+            this[correspondence.modelField] = this.deserializeValue(options[dataField], correspondence.type, correspondence.jsonField, correspondence.required);
         }
     }
     /**
@@ -125,6 +125,7 @@ var BaseModel = /** @class */ (function () {
      */
     BaseModel.prototype.deserializeValue = function (value, targetClass, jsonField, required) {
         var _this = this;
+        if (required === void 0) { required = false; }
         // if value is an array, deserialize each of its items
         if (Helpers.isArray(value)) {
             return value.map(function (item) { return _this.deserializeValue(item, targetClass, jsonField, required); });
@@ -139,9 +140,9 @@ var BaseModel = /** @class */ (function () {
         if (Helpers.isDateString(value)) {
             return new Date(value);
         }
-        // if value is required and it is null, throw exception
-        if (required && !value){
-            throw new Error("Value for json field '" + jsonField + "' not found")
+        // if value is required
+        if (required && !value) {
+            throw new Error("Value for json field '" + jsonField + "' not found");
         }
         // primitives do not require processing
         return value;

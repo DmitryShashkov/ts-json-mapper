@@ -6,7 +6,7 @@
  * 'BaseModel' constructor will use those correspondences for mapping
  * @param {string} jsonField - name of the field in JSON, that should be mapped to decorated property
  * @param type - class of decorated property (in case it belongs to composite type)
- * @param {boolean} required - force deserialize value
+ * @param {boolean} required - to force parse value, or will throw an exception
  * @returns {Function}
  */
 export declare function ModelProperty(jsonField?: string, type?: any, required?: boolean): Function;
@@ -25,7 +25,7 @@ export declare class BaseModel {
      * @param {boolean} required - force deserialize value
      * @returns
      */
-    private deserializeValue(value, targetClass, jsonField, required);
+    private deserializeValue(value, targetClass, jsonField, required?);
     /**
      * Serialize value depending on its type
      * @param value - value to serialize
